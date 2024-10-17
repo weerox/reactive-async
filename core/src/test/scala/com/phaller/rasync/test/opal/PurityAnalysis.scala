@@ -114,7 +114,7 @@ object PurityAnalysis extends ProjectAnalysisApplication {
     }
   }
 
-  var schedulingStrategy: SchedulingStrategy[Purity, Null] = null
+  var schedulingStrategy: SchedulingStrategy[Purity, Null] = new DefaultScheduling()
 
   override def doAnalyze(
     project: Project[URL],
@@ -139,7 +139,7 @@ object PurityAnalysis extends ProjectAnalysisApplication {
 
     // 2. trigger analyses
     for {
-      classFile <- project.allProjectClassFiles.par
+      classFile <- project.allProjectClassFiles
       method <- classFile.methods
     } {
       methodToCell(method).trigger()

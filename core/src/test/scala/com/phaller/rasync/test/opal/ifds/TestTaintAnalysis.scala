@@ -6,7 +6,7 @@ import java.net.URL
 
 import com.phaller.rasync.pool._
 
-import org.opalj.collection.immutable.RefArray
+import org.opalj.br.FieldTypes
 import org.opalj.br.DeclaredMethod
 import org.opalj.br.ObjectType
 import org.opalj.br.Method
@@ -212,7 +212,7 @@ class TestTaintAnalysis(
         println(s"Found flow: $stmt")
       }
     if (callee.name == "forName" && (callee.declaringClassType eq ObjectType.Class) &&
-      callee.descriptor.parameterTypes == RefArray(ObjectType.String))
+      callee.descriptor.parameterTypes == FieldTypes(ObjectType.String))
       if (in.exists {
         case Variable(index) ⇒
           asCall(stmt.stmt).params.exists(p ⇒ p.asVar.definedBy.contains(index))
@@ -335,7 +335,7 @@ class TestTaintAnalysis(
         case _ ⇒ true
       }
     } else if (call.name == "forName" && (call.declaringClass eq ObjectType.Class) &&
-      call.descriptor.parameterTypes == RefArray(ObjectType.String)) {
+      call.descriptor.parameterTypes == FieldTypes(ObjectType.String)) {
       if (in.exists {
         case Variable(index) ⇒
           asCall(stmt.stmt).params.exists(p ⇒ p.asVar.definedBy.contains(index))

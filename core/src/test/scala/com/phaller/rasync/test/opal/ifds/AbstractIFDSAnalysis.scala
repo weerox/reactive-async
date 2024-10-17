@@ -44,12 +44,14 @@ import com.phaller.rasync.test.opal.ifds.AbstractIFDSAnalysis.V
 
 import org.opalj.fpcf.FinalEP
 import org.opalj.br.fpcf.PropertyStoreKey
-import org.opalj.br.fpcf.properties.cg.Callees
+import org.opalj.tac.fpcf.analyses.cg.TypeIterator
+import org.opalj.tac.fpcf.properties.cg.Callees
 import org.opalj.tac.LazyDetachedTACAIKey
 import org.opalj.tac.cg.CHACallGraphKey
 import org.opalj.tac.cg.RTACallGraphKey
 import org.opalj.tac.Return
 import org.opalj.tac.ReturnValue
+import org.opalj.tac.fpcf.analyses.cg.CHATypeIterator
 
 /**
  * The super type of all IFDS facts.
@@ -402,6 +404,7 @@ abstract class AbstractIFDSAnalysis[DataFlowFact <: AbstractIFDSFact](parallelis
   }
 
   implicit val ps = project.get(PropertyStoreKey)
+  implicit val ti: TypeIterator = new CHATypeIterator(project)
 
   /**
    * Gets the set of all methods possibly called at some call statement.
@@ -412,7 +415,8 @@ abstract class AbstractIFDSAnalysis[DataFlowFact <: AbstractIFDSFact](parallelis
    */
   def getCallees(basicBlock: BasicBlock, pc: Int)(implicit state: State): SomeSet[Method] = {
     val FinalEP(_, callees) = ps(declaredMethods(state.method), Callees.key)
-    definedMethods(callees.directCallees(pc))
+    val context = ti.newContext(declaredMethods(state.method))
+    definedMethods(callees.directCallees(context, pc).map(_.method))
   }
 
   /**
