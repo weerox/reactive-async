@@ -2,15 +2,15 @@ import Dependencies._ // see project/Dependencies.scala
 import Util._         // see project/Util.scala
 
 val buildVersion = "0.2.1-SNAPSHOT"
-organization in ThisBuild := "com.phaller"
-licenses in ThisBuild += ("BSD 2-Clause", url("http://opensource.org/licenses/BSD-2-Clause"))
+ThisBuild / organization := "com.phaller"
+ThisBuild / licenses += ("BSD 2-Clause", url("http://opensource.org/licenses/BSD-2-Clause"))
 
 def commonSettings = Seq(
-  version in ThisBuild := buildVersion,
+  ThisBuild / version := buildVersion,
   scalaVersion := buildScalaVersion,
   logBuffered := false,
-  parallelExecution in Test := false,
-  resolvers in ThisBuild += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
+  Test / parallelExecution := false,
+  ThisBuild / resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 )
 
 def noPublish = Seq(
@@ -33,7 +33,7 @@ lazy val npv: Project = (project in file("monte-carlo-npv")).
   settings(
     name := "reactive-async-npv",
     scalacOptions += "-feature",
-    skip in publish := true
+    publish / skip := true
   ).
   dependsOn(core)
 
@@ -48,7 +48,7 @@ lazy val bench: Project = (project in file("bench")).
 //    libraryDependencies += opalAI % Test,
     libraryDependencies += scalaMeter,
     testFrameworks += new TestFramework("org.scalameter.ScalaMeterFramework"),
-    skip in publish := true
+    publish / skip := true
   ).configs(
     Benchmark
   ).settings(
@@ -56,4 +56,4 @@ lazy val bench: Project = (project in file("bench")).
   ).
   dependsOn(core)
 
-javaOptions in ThisBuild ++= Seq("-Xmx27G", "-Xms1024m", "-XX:ThreadStackSize=2048")
+ThisBuild / javaOptions ++= Seq("-Xmx27G", "-Xms1024m", "-XX:ThreadStackSize=2048")
