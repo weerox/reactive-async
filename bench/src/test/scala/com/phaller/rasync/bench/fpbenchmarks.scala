@@ -22,7 +22,7 @@ object FuturesAndPromisesBenchmarks extends PerformanceTest.Microbenchmark {
   performance of "Promises" in {
     measure method "creating" in {
       using(size) config (
-        exec.benchRuns -> 9) in {
+        exec.benchRuns := 9) in {
           r => for (i <- 1 to r) Promise[Int]()
         }
     }
@@ -32,7 +32,7 @@ object FuturesAndPromisesBenchmarks extends PerformanceTest.Microbenchmark {
   performance of "Promises" in {
     measure method "creating and completing" in {
       using(size) config (
-        exec.benchRuns -> 9) in {
+        exec.benchRuns := 9) in {
           r =>
             for (i <- 1 to r) {
               val p = Promise[Int]
@@ -46,7 +46,7 @@ object FuturesAndPromisesBenchmarks extends PerformanceTest.Microbenchmark {
   performance of "Promises" in {
     measure method "refinement" in {
       using(Gen.unit(s"$nrOfPromises promises")) config (
-        exec.benchRuns -> 9) in {
+        exec.benchRuns := 9) in {
           (Unit) =>
             {
               var i = 0

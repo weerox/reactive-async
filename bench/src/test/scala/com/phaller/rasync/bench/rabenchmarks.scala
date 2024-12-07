@@ -31,7 +31,7 @@ object ReactiveAsyncBenchmarks extends PerformanceTest.Microbenchmark {
   performance of "Cells" in {
     measure method "creating" in {
       using(size) config (
-        exec.benchRuns -> 9) in {
+        exec.benchRuns := 9) in {
           r =>
             {
               implicit val pool = new HandlerPool(NaturalNumberKey, nrOfThreads)
@@ -47,7 +47,7 @@ object ReactiveAsyncBenchmarks extends PerformanceTest.Microbenchmark {
   performance of "Cells" in {
     measure method "create and putFinal" in {
       using(size) config (
-        exec.benchRuns -> 9) in {
+        exec.benchRuns := 9) in {
           r =>
             {
               implicit val pool = new HandlerPool(NaturalNumberKey, nrOfThreads)
@@ -66,7 +66,7 @@ object ReactiveAsyncBenchmarks extends PerformanceTest.Microbenchmark {
   performance of "Cells" in {
     measure method "putNext" in {
       using(Gen.unit(s"$nrOfCells cells")) config (
-        exec.benchRuns -> 9) in {
+        exec.benchRuns := 9) in {
           (Unit) =>
             implicit val pool = new HandlerPool(NaturalNumberKey, nrOfThreads)
             val cellCompleter = CellCompleter[Int, Null]()
