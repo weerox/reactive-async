@@ -29,7 +29,7 @@ private final class Backoff {
     seed
   }
 
-  def once() {
+  def once(): Unit = {
     if (count == 0)
       count = 1
     else {
@@ -42,7 +42,7 @@ private final class Backoff {
 
 // an unsynchronized, but thread-varying RNG
 private final class Random(var seed: Long = 1) {
-  def nextSeed {
+  def nextSeed: Unit = {
     seed = Random.nextSeed(seed)
   }
 

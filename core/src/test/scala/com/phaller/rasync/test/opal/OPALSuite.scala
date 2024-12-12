@@ -2,7 +2,7 @@ package com.phaller.rasync
 package test
 package opal
 
-import org.scalatest.FunSuite
+import munit.FunSuite
 
 import org.opalj.br.analyses.Project
 

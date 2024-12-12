@@ -6,7 +6,8 @@ import com.phaller.rasync.cell._
 import com.phaller.rasync.lattice.{ DefaultKey, Key, Updater }
 import com.phaller.rasync.pool.HandlerPool
 import com.phaller.rasync.test.lattice.IntUpdater
-import org.scalatest.FunSuite
+
+import munit.FunSuite
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -109,8 +110,8 @@ class MixedKeyResolutionSuite extends FunSuite with MixedCompleterFactory {
     for (c <- List(cell1, cell2, cell3, cell4))
       c.onComplete {
         case Success(v) =>
-          assert(v === ConstantKey.RESOLVEDINCYCLE)
-          assert(c.numDependencies === 0)
+          assert(v == ConstantKey.RESOLVEDINCYCLE)
+          assert(c.numDependencies == 0)
           latch.countDown()
         case Failure(e) =>
           assert(false)
@@ -174,8 +175,8 @@ class MixedKeyResolutionSuite extends FunSuite with MixedCompleterFactory {
     for (c <- List(cell1, cell2, cell3, cell4))
       c.onComplete {
         case Success(v) =>
-          assert(v === ConstantKey.RESOLVEDINCYCLE)
-          assert(c.numDependencies === 0)
+          assert(v == ConstantKey.RESOLVEDINCYCLE)
+          assert(c.numDependencies == 0)
           latch.countDown()
         case Failure(e) =>
           assert(false)
@@ -230,8 +231,8 @@ class MixedKeyResolutionSuite extends FunSuite with MixedCompleterFactory {
     for (c <- List(cell1, cell2, cell3, cell4))
       c.onComplete {
         case Success(v) =>
-          assert(v === -1)
-          assert(c.numDependencies === 0)
+          assert(v == -1)
+          assert(c.numDependencies == 0)
           latch.countDown()
         case Failure(e) =>
           assert(false)
@@ -286,8 +287,8 @@ class MixedKeyResolutionSuite extends FunSuite with MixedCompleterFactory {
     for (c <- List(cell1, cell2, cell3, cell4))
       c.onComplete {
         case Success(v) =>
-          assert(v === -1)
-          assert(c.numDependencies === 0)
+          assert(v == -1)
+          assert(c.numDependencies == 0)
           latch.countDown()
         case Failure(e) =>
           assert(false)

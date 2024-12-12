@@ -9,7 +9,8 @@ import com.phaller.rasync.lattice._
 import com.phaller.rasync.pool.HandlerPool
 import com.phaller.rasync.cell._
 import com.phaller.rasync.lattice.lattices.{ NaturalNumberKey, NaturalNumberLattice }
-import org.scalatest.FunSuite
+
+import munit.FunSuite
 
 import scala.concurrent.Await
 import scala.util.{ Failure, Success }

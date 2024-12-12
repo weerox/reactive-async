@@ -4,7 +4,8 @@ package test
 import java.util.concurrent.{ ConcurrentHashMap, CountDownLatch }
 
 import com.phaller.rasync.cell.{ Cell, CellCompleter }
-import org.scalatest.FunSuite
+
+import munit.FunSuite
 
 import scala.concurrent.{ Await, Promise }
 import scala.concurrent.duration._
@@ -51,7 +52,7 @@ class PoolSuite extends FunSuite {
     Await.ready(fut, 5.seconds)
 
     regCells.values().removeIf(_.getResult() != 0)
-    assert(regCells.size === 0)
+    assert(regCells.size == 0)
   }
 
   test("register cells concurrently 2") {
@@ -69,7 +70,7 @@ class PoolSuite extends FunSuite {
     val fut = pool.quiescentResolveCell // set all (registered) cells to 1 via key.fallback
     Await.ready(fut, 5.seconds)
 
-    assert(regCells.size === 1000)
+    assert(regCells.size == 1000)
   }
 
   test("handler pool quiescence") {

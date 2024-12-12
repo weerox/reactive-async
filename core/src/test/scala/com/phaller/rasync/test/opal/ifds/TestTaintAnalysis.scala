@@ -18,7 +18,7 @@ import org.opalj.bytecode.JRELibraryFolder
 import org.opalj.log.LogContext
 import org.opalj.tac._
 import org.opalj.util.{ Nanoseconds, PerformanceEvaluation }
-import org.scalatest.FunSuite
+
 import scala.collection.immutable.ListSet
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
@@ -398,7 +398,7 @@ object Taint extends IFDSPropertyMetaInformation[Fact] {
     new Taint(Map.empty))
 }
 
-object TestTaintAnalysisRunner extends FunSuite {
+object TestTaintAnalysisRunner {
 
   def main(args: Array[String]): Unit = {
 
