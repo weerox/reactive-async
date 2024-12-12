@@ -14,6 +14,9 @@ import scala.concurrent.{ Future, Promise }
 import scala.util.{ Failure, Success }
 import scala.util.control.NonFatal
 
+import gears.async.Async
+import gears.async.default.given
+
 /* Need to have reference equality for CAS.
  */
 private class PoolState(val handlers: List[() => Unit] = List(), val submittedTasks: Int = 0) {
@@ -92,7 +95,7 @@ class HandlerPool[V, E >: Null](
   @tailrec
   final def onQuiescent(handler: () => Unit): Unit = {
     val state = poolState.get()
-    if (state.isQuiescent) {
+    if (state.isQuiescent()) {
       execute(new Runnable { def run(): Unit = handler() }, 0)
     } else {
       val newState = new PoolState(handler :: state.handlers, state.submittedTasks)
@@ -283,6 +286,11 @@ class HandlerPool[V, E >: Null](
   def execute(task: Runnable, priority: Int = 0): Unit = {
     // Submit task to the pool
     incSubmittedTasks()
+
+/*
+    Async.blocking:
+      42
+*/
 
     // Run the task
     try {

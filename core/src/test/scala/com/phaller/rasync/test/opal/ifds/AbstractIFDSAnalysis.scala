@@ -52,6 +52,7 @@ import org.opalj.tac.cg.RTACallGraphKey
 import org.opalj.tac.Return
 import org.opalj.tac.ReturnValue
 import org.opalj.tac.fpcf.analyses.cg.CHATypeIterator
+import org.opalj.fpcf.PropertyStore
 
 /**
  * The super type of all IFDS facts.
@@ -403,7 +404,7 @@ abstract class AbstractIFDSAnalysis[DataFlowFact <: AbstractIFDSFact](parallelis
     }
   }
 
-  implicit val ps = project.get(PropertyStoreKey)
+  implicit val ps: PropertyStore = project.get(PropertyStoreKey)
   implicit val ti: TypeIterator = new CHATypeIterator(project)
 
   /**

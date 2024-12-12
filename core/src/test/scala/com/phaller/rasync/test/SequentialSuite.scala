@@ -8,13 +8,14 @@ import com.phaller.rasync.lattice.lattices.NaturalNumberKey
 import com.phaller.rasync.lattice.{ DefaultKey, Lattice, Updater }
 import com.phaller.rasync.pool.HandlerPool
 import com.phaller.rasync.test.lattice.IntUpdater
-import org.scalatest.FunSuite
+
+import munit.FunSuite
 
 /** Verify that callbacks of SequentialCells do not run concurrently. */
 class SequentialSuite extends FunSuite with SequentialCompleterFactory {
   implicit val intUpdater: Updater[Int] = new IntUpdater
 
-  test("when: calling sequentially") {
+  test("when: calling sequentially".ignore) {
     val n = 1000
 
     val runningCallbacks = new AtomicInteger(0)

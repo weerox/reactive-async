@@ -6,7 +6,8 @@ import com.phaller.rasync.cell._
 import com.phaller.rasync.lattice._
 import com.phaller.rasync.pool.HandlerPool
 import com.phaller.rasync.test.lattice.IntUpdater
-import org.scalatest.FunSuite
+
+import munit.FunSuite
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -121,8 +122,8 @@ abstract class KeyResolutionSuite extends FunSuite with CompleterFactory {
     for (c <- List(cell1, cell2, cell3, cell4))
       c.onComplete {
         case Success(v) =>
-          assert(v === ConstantKey.RESOLVEDINCYCLE)
-          assert(c.numDependencies === 0)
+          assert(v == ConstantKey.RESOLVEDINCYCLE)
+          assert(c.numDependencies == 0)
           latch.countDown()
         case Failure(e) =>
           assert(false)
@@ -177,8 +178,8 @@ abstract class KeyResolutionSuite extends FunSuite with CompleterFactory {
     for (c <- List(cell1, cell2, cell3, cell4))
       c.onComplete {
         case Success(v) =>
-          assert(v === -1)
-          assert(c.numDependencies === 0)
+          assert(v == -1)
+          assert(c.numDependencies == 0)
           latch.countDown()
         case Failure(e) =>
           assert(false)

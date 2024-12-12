@@ -1,7 +1,7 @@
 package com.phaller.rasync
 package test
 
-import org.scalatest.FunSuite
+import munit.FunSuite
 import java.util.concurrent.{ CountDownLatch, TimeUnit }
 
 import scala.concurrent.duration._
@@ -35,7 +35,7 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
     val cell = completer.cell
     cell.onComplete {
       case Success(v) =>
-        assert(v === 5)
+        assert(v == 5)
         latch.countDown()
       case Failure(e) =>
         assert(false)
@@ -95,7 +95,7 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
 
     cell1.onComplete {
       case Success(v) =>
-        assert(v === 20)
+        assert(v == 20)
         latch.countDown()
       case Failure(e) =>
         assert(false)
@@ -121,7 +121,7 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
 
     cell1.onComplete {
       case Success(v) =>
-        assert(v === 20)
+        assert(v == 20)
         latch.countDown()
       case Failure(e) =>
         assert(false)
@@ -228,7 +228,7 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
 
     cell.onNext {
       case Success(x) =>
-        assert(x === 9)
+        assert(x == 9)
         latch.countDown()
       case Failure(e) =>
         assert(false)
@@ -257,7 +257,7 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
 
     cell1.onNext {
       case Success(x) =>
-        assert(x === 20)
+        assert(x == 20)
         latch.countDown()
       case Failure(e) =>
         assert(false)
@@ -286,7 +286,7 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
 
     cell1.onNext {
       case Success(x) =>
-        assert(x === 20)
+        assert(x == 20)
         latch.countDown()
       case Failure(e) =>
         assert(false)
@@ -450,7 +450,7 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
 
     cell1.onComplete {
       case Success(v) =>
-        assert(v === 20)
+        assert(v == 20)
         latch.countDown()
       case Failure(e) =>
         assert(false)
@@ -486,7 +486,7 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
 
     cell1.onComplete {
       case Success(x) =>
-        assert(x === 20)
+        assert(x == 20)
         latch.countDown()
       case Failure(e) =>
         assert(false)
@@ -514,7 +514,7 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
 
     cell1.onNext {
       case Success(x) =>
-        assert(x === 8 || x === 20)
+        assert(x == 8 || x == 20)
         latch1.countDown()
       case Failure(e) =>
         assert(false)
@@ -523,7 +523,7 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
 
     cell1.onComplete {
       case Success(x) =>
-        assert(x === 20)
+        assert(x == 20)
         latch2.countDown()
       case Failure(e) =>
         assert(false)
@@ -560,7 +560,7 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
 
     cell1.onNext {
       case Success(x) =>
-        assert((x === 8 && !cell1.isComplete) || x === 10)
+        assert((x == 8 && !cell1.isComplete) || x == 10)
         latch1.countDown()
       case Failure(e) =>
         assert(false)
@@ -569,7 +569,7 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
 
     cell1.onComplete {
       case Success(x) =>
-        assert(x === 10)
+        assert(x == 10)
         latch2.countDown()
       case Failure(e) =>
         assert(false)
@@ -596,7 +596,7 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
     val completer = mkCompleter[Int, Null]
     completer.cell.onComplete {
       case Success(v) =>
-        assert(v === 6)
+        assert(v == 6)
         latch.countDown()
       case Failure(e) =>
         assert(false)
@@ -615,7 +615,7 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
     val completer = mkCompleter[Int, Null]
     completer.cell.onNext {
       case Success(x) =>
-        assert(x === 10)
+        assert(x == 10)
         latch.countDown()
       case Failure(e) =>
         assert(false)
@@ -641,7 +641,7 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
     val cell = completer.cell
     cell.onComplete {
       case Success(v) =>
-        assert(v === Set(3, 4, 5))
+        assert(v == Set(3, 4, 5))
         latch.countDown()
       case Failure(e) =>
         assert(false)
@@ -669,7 +669,7 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
     completer.putNext(Set(3, 5))
     cell.onNext {
       case Success(v) =>
-        assert(v === Set(3, 4, 5) || v === Set(3, 5))
+        assert(v == Set(3, 4, 5) || v == Set(3, 5))
         latch.countDown()
       case Failure(e) =>
         assert(false)
@@ -716,7 +716,7 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
 
     completer.putFinal(10)
 
-    val result = cell.getResult
+    val result = cell.getResult()
 
     assert(result == 10)
   }
@@ -726,7 +726,7 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
     val completer = mkCompleter[Int, Null]
     val cell = completer.cell
 
-    val result = cell.getResult
+    val result = cell.getResult()
 
     assert(result == 0)
   }
@@ -738,7 +738,7 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
 
     completer.putNext(ConditionallyImmutable)
 
-    val res = cell.getResult
+    val res = cell.getResult()
 
     assert(res == ConditionallyImmutable)
   }
@@ -749,19 +749,19 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
     val cell = completer.cell
 
     completer.putNext(Immutable)
-    assert(cell.getResult == Immutable)
+    assert(cell.getResult() == Immutable)
 
     completer.putNext(ConditionallyImmutable)
-    assert(cell.getResult == ConditionallyImmutable)
+    assert(cell.getResult() == ConditionallyImmutable)
 
     // Should be allowed because it's the same value and is allowed by the lattice
     completer.putFinal(ConditionallyImmutable)
-    assert(cell.getResult == ConditionallyImmutable)
+    assert(cell.getResult() == ConditionallyImmutable)
 
     // Even though cell is completed, this should be allowed because it's the same
     // value and is allowed by the lattice
     completer.putNext(ConditionallyImmutable)
-    assert(cell.getResult == ConditionallyImmutable)
+    assert(cell.getResult() == ConditionallyImmutable)
 
     // Even though cell is completed, this should be allowed because it wont add any new information
     completer.putNext(Immutable)
@@ -891,7 +891,7 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
       var called = 0
       completer2.cell.when(completer1.cell)(it => {
         if (it.head._2.get.isInstanceOf[FinalOutcome[_]]) {
-          assert(called === 0)
+          assert(called == 0)
           called += 1
           latch.countDown()
         }
@@ -918,7 +918,7 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
 
       latch.await()
 
-      assert(called === 1)
+      assert(called == 1)
     }
 
     pool.onQuiescenceShutdown()
@@ -1039,8 +1039,8 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
     val fut = pool.quiescentResolveCell
     Await.ready(fut, 2.seconds)
 
-    assert(completer1.cell.getResult == 42)
-    assert(completer2.cell.getResult == 84)
+    assert(completer1.cell.getResult() == 42)
+    assert(completer2.cell.getResult() == 84)
 
     pool.onQuiescenceShutdown()
   }
@@ -1060,8 +1060,8 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
     val fut = pool.quiescentResolveCell
     Await.ready(fut, 2.seconds)
 
-    assert(completer1.cell.getResult == 86)
-    assert(completer2.cell.getResult == 43)
+    assert(completer1.cell.getResult() == 86)
+    assert(completer2.cell.getResult() == 43)
 
     pool.onQuiescenceShutdown()
   }

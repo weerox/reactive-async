@@ -3,9 +3,10 @@ package test
 
 import cell._
 import com.phaller.rasync.lattice.Updater
-import org.scalatest.FunSuite
 import pool.HandlerPool
 import lattice.IntUpdater
+
+import munit.FunSuite
 
 import scala.util.Try
 
