@@ -1,7 +1,7 @@
 import Dependencies._ // see project/Dependencies.scala
 import Util._         // see project/Util.scala
 
-val buildVersion = "0.2.1-SNAPSHOT"
+val buildVersion = "0.2.2-SNAPSHOT"
 ThisBuild / organization := "com.phaller"
 ThisBuild / licenses += ("BSD 2-Clause", url("http://opensource.org/licenses/BSD-2-Clause"))
 
