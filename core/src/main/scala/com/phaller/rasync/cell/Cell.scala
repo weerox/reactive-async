@@ -334,7 +334,7 @@ private[rasync] abstract class CellImpl[V, E >: Null](pool: HandlerPool[V, E], u
         if (sequential) new SequentialCallbackRunnable[V, E](pool, this, valueCallback)
         else new ConcurrentCallbackRunnable[V, E](pool, this, valueCallback)
 
-      val newState = new IntermediateState[V, E](current.res, current.tasksActive, current.dependees ++ other.iterator.map(_ → newCallback), current.dependers)
+      val newState = new IntermediateState[V, E](current.res, current.tasksActive, current.dependees ++ other.iterator.map(_ -> newCallback), current.dependers)
       if (state.compareAndSet(current, newState)) {
         other.foreach(c => {
           c.addDependentCell(this)

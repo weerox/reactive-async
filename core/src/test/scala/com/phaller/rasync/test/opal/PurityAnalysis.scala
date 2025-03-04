@@ -89,10 +89,10 @@ object PurityAnalysis extends ProjectAnalysisApplication {
     schedulingStrategy = new DefaultScheduling[Purity, Null]
     PerformanceEvaluation.time {
       val report = PurityAnalysis.doAnalyze(lib.recreate(), List.empty, () => false)
-    } { t ⇒ println(s"DefaultScheduling(Warmup),${t.timeSpan}") }
+    } { t => println(s"DefaultScheduling(Warmup),${t.timeSpan}") }
 
     for {
-      scheduling ← List(
+      scheduling <- List(
         new DefaultScheduling[Purity, Null],
         new SourcesWithManyTargetsFirst[Purity, Null],
         new SourcesWithManyTargetsLast[Purity, Null],
@@ -103,13 +103,13 @@ object PurityAnalysis extends ProjectAnalysisApplication {
         new SourcesWithManySourcesFirst[Purity, Null],
         new SourcesWithManySourcesLast[Purity, Null],
         PurityStrategy)
-      i ← (0 until 5)
+      i <- (0 until 5)
     } {
       val p = lib.recreate()
       schedulingStrategy = scheduling
       PerformanceEvaluation.time {
         val report = PurityAnalysis.doAnalyze(p, List.empty, () => false)
-      } { t ⇒ println(s"$scheduling,${t.timeSpan}") }
+      } { t => println(s"$scheduling,${t.timeSpan}") }
       //println(report.toConsoleString.split("\n").slice(0, 2).mkString("\n"))
     }
   }
@@ -119,7 +119,7 @@ object PurityAnalysis extends ProjectAnalysisApplication {
   override def doAnalyze(
     project: Project[URL],
     parameters: Seq[String] = List.empty,
-    isInterrupted: () ⇒ Boolean): BasicReport = {
+    isInterrupted: () => Boolean): BasicReport = {
 
     val startTime = System.currentTimeMillis // Used for measuring execution time
     // 1. Initialization of key data structures (one cell(completer) per method)
@@ -200,37 +200,37 @@ object PurityAnalysis extends ProjectAnalysisApplication {
       val instruction = instructions(currentPC)
 
       (instruction.opcode: @scala.annotation.switch) match {
-        case GETSTATIC.opcode ⇒
+        case GETSTATIC.opcode =>
           val GETSTATIC(declaringClass, fieldName, fieldType) = instruction
           import project.resolveFieldReference
           resolveFieldReference(declaringClass, fieldName, fieldType) match {
 
-            case Some(field) if field.isFinal ⇒ NoOutcome
+            case Some(field) if field.isFinal => NoOutcome
             /* Nothing to do; constants do not impede purity! */
 
-            // case Some(field) if field.isPrivate /*&& field.isNonFinal*/ ⇒
+            // case Some(field) if field.isPrivate /*&& field.isNonFinal*/ =>
             // check if the field is effectively final
 
-            case _ ⇒
+            case _ =>
               return FinalOutcome(Impure);
           }
 
-        case INVOKESPECIAL.opcode | INVOKESTATIC.opcode ⇒ instruction match {
+        case INVOKESPECIAL.opcode | INVOKESTATIC.opcode => instruction match {
 
-          case MethodInvocationInstruction(`declaringClassType`, _, `methodName`, `methodDescriptor`) ⇒
+          case MethodInvocationInstruction(`declaringClassType`, _, `methodName`, `methodDescriptor`) =>
           // We have a self-recursive call; such calls do not influence
           // the computation of the method's purity and are ignored.
           // Let's continue with the evaluation of the next instruction.
 
-          case mii: NonVirtualMethodInvocationInstruction ⇒
+          case mii: NonVirtualMethodInvocationInstruction =>
 
             nonVirtualCall(method.classFile.thisType, mii) match {
 
-              case Success(callee) ⇒
+              case Success(callee) =>
                 /* Recall that self-recursive calls are handled earlier! */
                 dependencies.add(callee)
 
-              case _ /* Empty or Failure */ ⇒
+              case _ /* Empty or Failure */ =>
 
                 // We know nothing about the target method (it is not
                 // found in the scope of the current project).
@@ -253,10 +253,10 @@ object PurityAnalysis extends ProjectAnalysisApplication {
           FALOAD.opcode | FASTORE.opcode |
           ARRAYLENGTH.opcode |
           MONITORENTER.opcode | MONITOREXIT.opcode |
-          INVOKEDYNAMIC.opcode | INVOKEVIRTUAL.opcode | INVOKEINTERFACE.opcode ⇒
+          INVOKEDYNAMIC.opcode | INVOKEVIRTUAL.opcode | INVOKEINTERFACE.opcode =>
           return FinalOutcome(Impure)
 
-        case _ ⇒
+        case _ =>
         /* All other instructions (IFs, Load/Stores, Arith., etc.) are pure. */
       }
       currentPC = body.pcOfNextInstruction(currentPC)

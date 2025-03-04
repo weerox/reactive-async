@@ -159,7 +159,7 @@ class ExceptionSuite extends FunSuite {
     pool.onQuiescenceShutdown()
 
     // check for exceptions in all cells of the cycle
-    for (c ← List(c0, c1, c2, c3, c4))
+    for (c <- List(c0, c1, c2, c3, c4))
       c.cell.getTry() match {
         case Success(_) => assert(false)
         case Failure(e) => assert(e.getMessage == "foo")

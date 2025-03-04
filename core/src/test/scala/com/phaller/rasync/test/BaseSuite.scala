@@ -965,7 +965,7 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
       }
 
       override def fallback(cells: Iterable[Cell[Int, Null]]): Iterable[(Cell[Int, Null], Int)] = {
-        cells.map(cell ⇒ (cell, cell.getResult()))
+        cells.map(cell => (cell, cell.getResult()))
       }
 
       override def toString = "ReactivePropertyStoreKey"
@@ -1072,7 +1072,7 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
     }
 
     override def fallback(cells: Iterable[Cell[Int, Null]]): Iterable[(Cell[Int, Null], Int)] = {
-      cells.map(cell ⇒ (cell, 43))
+      cells.map(cell => (cell, 43))
     }
   }
 }

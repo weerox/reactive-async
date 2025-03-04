@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentHashMap
 import com.phaller.rasync.lattice.{ Key, Lattice }
 import com.phaller.rasync.cell._
 import com.phaller.rasync.pool.{ HandlerPool, SchedulingStrategy }
-import scala.collection.{ Set ⇒ SomeSet }
+import scala.collection.{ Set => SomeSet }
 
 import org.opalj.br.DeclaredMethod
 import org.opalj.br.Method
@@ -77,7 +77,7 @@ trait AbstractIFDSNullFact extends AbstractIFDSFact
 // The `scheduling` is only for testing. In production, one would create a HandlerPool with the best scheduling for IFDS
 abstract class AbstractIFDSAnalysis[DataFlowFact <: AbstractIFDSFact](parallelism: Int, scheduling: SchedulingStrategy[IFDSProperty[DataFlowFact], (DeclaredMethod, DataFlowFact)])(implicit project: Project[_]) {
 
-  private val tacProvider: Method ⇒ TACode[TACMethodParameter, DUVar[ValueInformation]] = project.get(LazyDetachedTACAIKey)
+  private val tacProvider: Method => TACode[TACMethodParameter, DUVar[ValueInformation]] = project.get(LazyDetachedTACAIKey)
   val classHierarchy = project.classHierarchy
 
   // [p. ackland] "Both resolve and fallback return the empty set for each cell because on quiescence we know that no more propagations will be made and the cell can be completed."
@@ -173,7 +173,7 @@ abstract class AbstractIFDSAnalysis[DataFlowFact <: AbstractIFDSFact](parallelis
   /** Map (method, fact) pairs to cells. A new cell is created, if it does not exist yet. See also mf() for the reverse direction. */
   private def cell(source: (DeclaredMethod, DataFlowFact)): Cell[IFDSProperty[DataFlowFact], (DeclaredMethod, DataFlowFact)] = {
     // Can performance be improved if we first check, if mfToCell.isDefinedAt(source) first?
-    val c = pool.mkSequentialCell(c ⇒ performAnalysis(source), source)
+    val c = pool.mkSequentialCell(c => performAnalysis(source), source)
     mfToCell.putIfAbsent(source, c)
       .getOrElse(c)
   }
@@ -206,11 +206,11 @@ abstract class AbstractIFDSAnalysis[DataFlowFact <: AbstractIFDSFact](parallelis
     val code = tac.instructions
 
     implicit val state: State =
-      new State(declaringClass, method, source, code, cfg, Map(source → Set.empty))
+      new State(declaringClass, method, source, code, cfg, Map(source -> Set.empty))
 
     // Start processing at the start of the cfg with the given source fact
     val start = cfg.startBlock
-    state.incomingFacts += start → Set(sourceFact)
+    state.incomingFacts += start -> Set(sourceFact)
     process(mutable.Queue((start, Set(sourceFact), None, None, None)))
 
     createResult()
@@ -230,14 +230,14 @@ abstract class AbstractIFDSAnalysis[DataFlowFact <: AbstractIFDSFact](parallelis
       val allOut = mergeMaps(oldOut, nextOut)
       state.outgoingFacts = state.outgoingFacts.updated(bb, allOut)
 
-      for (successor ← bb.successors) {
+      for (successor <- bb.successors) {
         if (successor.isExitNode) {
           // Handle self-dependencies: Propagate new information to self calls
           val nextOutSuccessors = nextOut.get(successor)
           if (nextOutSuccessors.isDefined && nextOutSuccessors.get.nonEmpty) {
             val oldOutSuccessors = oldOut.get(successor)
             if (oldOutSuccessors.isEmpty ||
-              nextOutSuccessors.get.exists(nos ⇒ !oldOutSuccessors.get.contains(nos))) {
+              nextOutSuccessors.get.exists(nos => !oldOutSuccessors.get.contains(nos))) {
               val source = state.source
               reAnalyzeCalls(state.pendingIfdsCallSites(source), source._1.definedMethod, Some(source._2))
             }
@@ -274,14 +274,14 @@ abstract class AbstractIFDSAnalysis[DataFlowFact <: AbstractIFDSFact](parallelis
    */
   def collectResult(node: CFGNode)(implicit state: State): Map[Statement, Set[DataFlowFact]] = {
     var result = Map.empty[Statement, Set[DataFlowFact]]
-    node.predecessors foreach { predecessor ⇒
+    node.predecessors foreach { predecessor =>
       if (predecessor.isBasicBlock) {
         val basicBlock = predecessor.asBasicBlock
         // FIXME ... replace flatMap...isDefined by something that doesn't create intermediate data-structures
         if (state.outgoingFacts.get(basicBlock).flatMap(_.get(node)).isDefined) {
           val lastIndex = basicBlock.endPC
           val stmt = Statement(state.method, basicBlock, state.code(lastIndex), lastIndex, state.code, state.cfg)
-          result += stmt → state.outgoingFacts(basicBlock)(node)
+          result += stmt -> state.outgoingFacts(basicBlock)(node)
         }
       }
     }
@@ -362,24 +362,24 @@ abstract class AbstractIFDSAnalysis[DataFlowFact <: AbstractIFDSFact](parallelis
     var result: Map[CFGNode, Set[DataFlowFact]] =
       if (calleesO.isEmpty) {
         var result: Map[CFGNode, Set[DataFlowFact]] = Map.empty
-        for (node ← basicBlock.successors) {
-          result += node → normalFlow(statement, firstStatement(node), flows)
+        for (node <- basicBlock.successors) {
+          result += node -> normalFlow(statement, firstStatement(node), flows)
         }
         result
       } else {
-        handleCall(basicBlock, statement, calleesO.get, flows, callFact).map(entry ⇒ entry._1.node → entry._2)
+        handleCall(basicBlock, statement, calleesO.get, flows, callFact).map(entry => entry._1.node -> entry._2)
       }
 
     // Propagate the null fact.
-    result = result.map(result ⇒ result._1 → (propagateNullFact(in, result._2)))
+    result = result.map(result => result._1 -> (propagateNullFact(in, result._2)))
     result
   }
 
   /** Gets the expression from an assingment/expr statement. */
   def getExpression(stmt: Stmt[V]): Expr[V] = stmt.astID match {
-    case Assignment.ASTID ⇒ stmt.asAssignment.expr
-    case ExprStmt.ASTID ⇒ stmt.asExprStmt.expr
-    case _ ⇒ throw new UnknownError("Unexpected statement")
+    case Assignment.ASTID => stmt.asAssignment.expr
+    case ExprStmt.ASTID => stmt.asExprStmt.expr
+    case _ => throw new UnknownError("Unexpected statement")
   }
 
   /**
@@ -393,13 +393,13 @@ abstract class AbstractIFDSAnalysis[DataFlowFact <: AbstractIFDSFact](parallelis
     val statement = state.code(index)
     val pc = statement.pc
     statement.astID match {
-      case StaticMethodCall.ASTID | NonVirtualMethodCall.ASTID | VirtualMethodCall.ASTID ⇒ Some(getCallees(basicBlock, pc))
-      case Assignment.ASTID | ExprStmt.ASTID ⇒ getExpression(statement).astID match {
-        case StaticFunctionCall.ASTID | NonVirtualFunctionCall.ASTID | VirtualFunctionCall.ASTID ⇒
+      case StaticMethodCall.ASTID | NonVirtualMethodCall.ASTID | VirtualMethodCall.ASTID => Some(getCallees(basicBlock, pc))
+      case Assignment.ASTID | ExprStmt.ASTID => getExpression(statement).astID match {
+        case StaticFunctionCall.ASTID | NonVirtualFunctionCall.ASTID | VirtualFunctionCall.ASTID =>
           Some(getCallees(basicBlock, pc))
-        case _ ⇒ None
+        case _ => None
       }
-      case _ ⇒ None
+      case _ => None
     }
   }
 
@@ -427,15 +427,15 @@ abstract class AbstractIFDSAnalysis[DataFlowFact <: AbstractIFDSFact](parallelis
    */
   def definedMethods(declaredMethods: Iterator[DeclaredMethod]): SomeSet[Method] = {
     val result = scala.collection.mutable.Set.empty[Method]
-    declaredMethods.filter(declaredMethod ⇒ declaredMethod.hasSingleDefinedMethod || declaredMethod.hasMultipleDefinedMethods).foreach(declaredMethod ⇒
-      declaredMethod.foreachDefinedMethod(defineMethod ⇒ result.add(defineMethod)))
+    declaredMethods.filter(declaredMethod => declaredMethod.hasSingleDefinedMethod || declaredMethod.hasMultipleDefinedMethods).foreach(declaredMethod =>
+      declaredMethod.foreachDefinedMethod(defineMethod => result.add(defineMethod)))
     result
   }
 
   def reAnalyzeCalls(callSites: Set[(BasicBlock, Int)], callee: Method, fact: Option[DataFlowFact])(implicit state: State): Unit = {
     val queue: mutable.Queue[(BasicBlock, Set[DataFlowFact], Option[Int], Option[Method], Option[DataFlowFact])] =
       mutable.Queue.empty
-    for ((block, index) ← callSites)
+    for ((block, index) <- callSites)
       queue.enqueue(
         (
           block,
@@ -452,9 +452,9 @@ abstract class AbstractIFDSAnalysis[DataFlowFact <: AbstractIFDSFact](parallelis
     val queue: mutable.Queue[(BasicBlock, Set[DataFlowFact], Option[Int], Option[Method], Option[DataFlowFact])] =
       mutable.Queue.empty
     for (
-      e ← es;
+      e <- es;
       blocks = state.pendingIfdsCallSites(e);
-      (block, callSite) ← blocks
+      (block, callSite) <- blocks
     ) queue.enqueue(
       (
         block,
@@ -487,24 +487,24 @@ abstract class AbstractIFDSAnalysis[DataFlowFact <: AbstractIFDSFact](parallelis
 
     // If calleeWithUpdateFact is present, this means that the basic block already has been analyzed with the `in` facts.
     if (calleeWithUpdateFact.isEmpty)
-      for (successor ← successors) {
-        summaryEdges += successor → propagateNullFact(in, callToReturnFlow(call, successor, in))
+      for (successor <- successors) {
+        summaryEdges += successor -> propagateNullFact(in, callToReturnFlow(call, successor, in))
       }
 
-    for (calledMethod ← callees) {
+    for (calledMethod <- callees) {
       val callee = declaredMethods(calledMethod)
       if (callee.definedMethod.isNative) {
         // We cannot analyze native methods. Let the concrete analysis decide what to do.
         for {
-          successor ← successors
-        } summaryEdges += successor → (summaryEdges(successor) ++ nativeCall(call, callee, successor, in))
+          successor <- successors
+        } summaryEdges += successor -> (summaryEdges(successor) ++ nativeCall(call, callee, successor, in))
       } else {
         val callToStart =
           if (calleeWithUpdateFact.isDefined) calleeWithUpdateFact.toSet
           else propagateNullFact(in, callFlow(call, callee, in))
         var allNewExitFacts: Map[Statement, Set[DataFlowFact]] = Map.empty
         // Collect exit facts for each input fact separately
-        for (fact ← callToStart) {
+        for (fact <- callToStart) {
           /*
           * If this is a recursive call with the same input facts, we assume that the call only produces the facts that are already known.
           * The call site is added to `pendingIfdsCallSites`, so that it will be re-evaluated if new output facts become known for the input fact.
@@ -530,21 +530,21 @@ abstract class AbstractIFDSAnalysis[DataFlowFact <: AbstractIFDSFact](parallelis
             val oldValue = state.pendingIfdsDependees.get(c)
 
             val oldExitFacts: Map[Statement, Set[DataFlowFact]] = oldValue match {
-              case Some(NextOutcome(p)) ⇒ p.flows
-              case _ ⇒ Map.empty
+              case Some(NextOutcome(p)) => p.flows
+              case _ => Map.empty
             }
             val exitFacts: Map[Statement, Set[DataFlowFact]] = callFlows match {
-              case FinalOutcome(p) ⇒
+              case FinalOutcome(p) =>
                 val newDependee =
                   state.pendingIfdsCallSites.getOrElse(e, Set.empty) - ((basicBlock, call.index))
                 state.pendingIfdsCallSites = state.pendingIfdsCallSites.updated(e, newDependee)
                 state.pendingIfdsDependees -= c
                 p.flows
-              case NextOutcome(p) ⇒
+              case NextOutcome(p) =>
                 val newDependee =
                   state.pendingIfdsCallSites.getOrElse(e, Set.empty) + ((basicBlock, call.index))
                 state.pendingIfdsCallSites = state.pendingIfdsCallSites.updated(e, newDependee)
-                state.pendingIfdsDependees += c → callFlows
+                state.pendingIfdsDependees += c -> callFlows
                 p.flows
             }
             // Only process new facts that are not in `oldExitFacts`
@@ -561,17 +561,17 @@ abstract class AbstractIFDSAnalysis[DataFlowFact <: AbstractIFDSFact](parallelis
 
         // Map facts valid on each exit statement of the callee back to the caller
         for {
-          successor ← successors if successor.node.isBasicBlock || successor.node.isNormalReturnExitNode
-          exitStatement ← allNewExitFacts.keys if exitStatement.stmt.astID == Return.ASTID ||
+          successor <- successors if successor.node.isBasicBlock || successor.node.isNormalReturnExitNode
+          exitStatement <- allNewExitFacts.keys if exitStatement.stmt.astID == Return.ASTID ||
             exitStatement.stmt.astID == ReturnValue.ASTID
-        } summaryEdges += successor → (summaryEdges.getOrElse(successor, Set.empty[DataFlowFact]) ++
+        } summaryEdges += successor -> (summaryEdges.getOrElse(successor, Set.empty[DataFlowFact]) ++
           returnFlow(call, callee, exitStatement, successor, allNewExitFacts.getOrElse(exitStatement, Set.empty)))
 
         for {
-          successor ← successors if successor.node.isCatchNode || successor.node.isAbnormalReturnExitNode
-          exitStatement ← allNewExitFacts.keys if exitStatement.stmt.astID != Return.ASTID &&
+          successor <- successors if successor.node.isCatchNode || successor.node.isAbnormalReturnExitNode
+          exitStatement <- allNewExitFacts.keys if exitStatement.stmt.astID != Return.ASTID &&
             exitStatement.stmt.astID != ReturnValue.ASTID
-        } summaryEdges += successor → (summaryEdges.getOrElse(successor, Set.empty[DataFlowFact]) ++
+        } summaryEdges += successor -> (summaryEdges.getOrElse(successor, Set.empty[DataFlowFact]) ++
           returnFlow(call, callee, exitStatement, successor, allNewExitFacts.getOrElse(exitStatement, Set.empty)))
       }
     }
@@ -587,7 +587,7 @@ abstract class AbstractIFDSAnalysis[DataFlowFact <: AbstractIFDSFact](parallelis
    */
   def successorStatements(statement: Statement, basicBlock: BasicBlock)(implicit state: State): Set[Statement] = {
     val index = statement.index
-    if (index == basicBlock.endPC) for (successorBlock ← basicBlock.successors) yield firstStatement(successorBlock)
+    if (index == basicBlock.endPC) for (successorBlock <- basicBlock.successors) yield firstStatement(successorBlock)
     else {
       val nextIndex = index + 1
       Set(Statement(statement.method, basicBlock, statement.code(nextIndex), nextIndex, statement.code, statement.cfg))
@@ -616,14 +616,14 @@ abstract class AbstractIFDSAnalysis[DataFlowFact <: AbstractIFDSFact](parallelis
    */
   def mergeMaps[S, T](map1: Map[S, Set[T]], map2: Map[S, Set[T]]): Map[S, Set[T]] = {
     var result = map1
-    for ((key, values) ← map2) {
+    for ((key, values) <- map2) {
       result.get(key) match {
-        case Some(resultValues) ⇒
+        case Some(resultValues) =>
           if (resultValues.size > values.size)
             result = result.updated(key, resultValues ++ values)
           else
             result = result.updated(key, values ++ resultValues)
-        case None ⇒
+        case None =>
           result = result.updated(key, values)
       }
     }
@@ -640,7 +640,7 @@ abstract class AbstractIFDSAnalysis[DataFlowFact <: AbstractIFDSFact](parallelis
    */
   def mapDifference[S, T](minuend: Map[S, Set[T]], subtrahend: Map[S, Set[T]]): Map[S, Set[T]] = {
     var result = minuend
-    for ((key, values) ← subtrahend) {
+    for ((key, values) <- subtrahend) {
       result = result.updated(key, result(key) -- values)
     }
     result
@@ -653,9 +653,9 @@ abstract class AbstractIFDSAnalysis[DataFlowFact <: AbstractIFDSFact](parallelis
    * @return
    */
   def asCall(stmt: Stmt[V]): Call[V] = stmt.astID match {
-    case Assignment.ASTID ⇒ stmt.asAssignment.expr.asFunctionCall
-    case ExprStmt.ASTID ⇒ stmt.asExprStmt.expr.asFunctionCall
-    case _ ⇒ stmt.asMethodCall
+    case Assignment.ASTID => stmt.asAssignment.expr.asFunctionCall
+    case ExprStmt.ASTID => stmt.asExprStmt.expr.asFunctionCall
+    case _ => stmt.asMethodCall
   }
 
   /**
@@ -710,8 +710,8 @@ object AbstractIFDSAnalysis {
 
     override def equals(o: Any): Boolean = {
       o match {
-        case s: Statement ⇒ s.index == index && s.method == method
-        case _ ⇒ false
+        case s: Statement => s.index == index && s.method == method
+        case _ => false
       }
     }
 
