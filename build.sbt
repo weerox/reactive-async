@@ -1,5 +1,5 @@
 import Dependencies._ // see project/Dependencies.scala
-import Util._         // see project/Util.scala
+import Version._      // see project/Version.scala
 
 val buildVersion = "0.2.1-SNAPSHOT"
 ThisBuild / organization := "com.phaller"
