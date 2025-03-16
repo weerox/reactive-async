@@ -1,5 +1,5 @@
 import Dependencies._ // see project/Dependencies.scala
-import Version._      // see project/Version.scala
+import Version._ // see project/Version.scala
 
 val buildVersion = "0.2.1-SNAPSHOT"
 ThisBuild / organization := "com.phaller"
@@ -18,9 +18,9 @@ def noPublish = Seq(
   publishLocal := {}
 )
 
-lazy val core: Project = (project in file("core")).
-  settings(commonSettings: _*).
-  settings(
+lazy val core: Project = (project in file("core"))
+  .settings(commonSettings: _*)
+  .settings(
     name := "reactive-async",
     libraryDependencies += scalaTest,
     libraryDependencies += opalCommon,
@@ -28,20 +28,20 @@ lazy val core: Project = (project in file("core")).
     scalacOptions += "-feature"
   )
 
-lazy val npv: Project = (project in file("monte-carlo-npv")).
-  settings(commonSettings: _*).
-  settings(
+lazy val npv: Project = (project in file("monte-carlo-npv"))
+  .settings(commonSettings: _*)
+  .settings(
     name := "reactive-async-npv",
     scalacOptions += "-feature",
     publish / skip := true
-  ).
-  dependsOn(core)
+  )
+  .dependsOn(core)
 
 lazy val Benchmark = config("bench") extend Test
 
-lazy val bench: Project = (project in file("bench")).
-  settings(commonSettings: _*).
-  settings(
+lazy val bench: Project = (project in file("bench"))
+  .settings(commonSettings: _*)
+  .settings(
     name := "reactive-async-bench",
     libraryDependencies += scalaTest,
     libraryDependencies += opalCommon,
@@ -49,11 +49,13 @@ lazy val bench: Project = (project in file("bench")).
     libraryDependencies += scalaMeter,
     testFrameworks += new TestFramework("org.scalameter.ScalaMeterFramework"),
     publish / skip := true
-  ).configs(
+  )
+  .configs(
     Benchmark
-  ).settings(
+  )
+  .settings(
     inConfig(Benchmark)(Defaults.testSettings): _*
-  ).
-  dependsOn(core)
+  )
+  .dependsOn(core)
 
 ThisBuild / javaOptions ++= Seq("-Xmx27G", "-Xms1024m", "-XX:ThreadStackSize=2048")

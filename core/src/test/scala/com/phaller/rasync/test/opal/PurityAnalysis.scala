@@ -68,21 +68,26 @@ import org.opalj.br.DeclaredMethod
 
 // A strategy tailored to PurityAnalysis
 object PurityStrategy extends SchedulingStrategy[Purity, Null] {
-  override def calcPriority(dependentCell: Cell[Purity, Null], other: Cell[Purity, Null], value: Try[ValueOutcome[Purity]]): Int = value match {
+  override def calcPriority(
+      dependentCell: Cell[Purity, Null],
+      other: Cell[Purity, Null],
+      value: Try[ValueOutcome[Purity]]
+  ): Int = value match {
     case scala.util.Success(FinalOutcome(Impure)) => -1
-    case _ => 1
+    case _                                        => 1
   }
 
-  override def calcPriority(dependentCell: Cell[Purity, Null], value: Try[Purity]): Int = value match {
-    case scala.util.Success(Pure) => 0
-    case _ => -1
-  }
+  override def calcPriority(dependentCell: Cell[Purity, Null], value: Try[Purity]): Int =
+    value match {
+      case scala.util.Success(Pure) => 0
+      case _                        => -1
+    }
 }
 
 object PurityAnalysis extends ProjectAnalysisApplication {
 
   override def main(args: Array[String]): Unit = {
-    val lib = Project(new java.io.File(args(args.length - 1))) //JRELibraryFolder.getAbsolutePath))
+    val lib = Project(new java.io.File(args(args.length - 1))) // JRELibraryFolder.getAbsolutePath))
 
     println("Heap size: " + Runtime.getRuntime().maxMemory())
 
@@ -102,7 +107,8 @@ object PurityAnalysis extends ProjectAnalysisApplication {
         new TargetsWithManyTargetsLast[Purity, Null],
         new SourcesWithManySourcesFirst[Purity, Null],
         new SourcesWithManySourcesLast[Purity, Null],
-        PurityStrategy)
+        PurityStrategy
+      )
       i <- (0 until 5)
     } {
       val p = lib.recreate()
@@ -110,20 +116,22 @@ object PurityAnalysis extends ProjectAnalysisApplication {
       PerformanceEvaluation.time {
         val report = PurityAnalysis.doAnalyze(p, List.empty, () => false)
       } { t => println(s"$scheduling,${t.timeSpan}") }
-      //println(report.toConsoleString.split("\n").slice(0, 2).mkString("\n"))
+      // println(report.toConsoleString.split("\n").slice(0, 2).mkString("\n"))
     }
   }
 
   var schedulingStrategy: SchedulingStrategy[Purity, Null] = new DefaultScheduling()
 
   override def doAnalyze(
-    project: Project[URL],
-    parameters: Seq[String] = List.empty,
-    isInterrupted: () => Boolean): BasicReport = {
+      project: Project[URL],
+      parameters: Seq[String] = List.empty,
+      isInterrupted: () => Boolean
+  ): BasicReport = {
 
     val startTime = System.currentTimeMillis // Used for measuring execution time
     // 1. Initialization of key data structures (one cell(completer) per method)
-    implicit val pool: HandlerPool[Purity, Null] = new HandlerPool(key = PurityKey, parallelism = 10, schedulingStrategy = schedulingStrategy)
+    implicit val pool: HandlerPool[Purity, Null] =
+      new HandlerPool(key = PurityKey, parallelism = 10, schedulingStrategy = schedulingStrategy)
     var methodToCell = Map.empty[Method, Cell[Purity, Null]]
     for {
       classFile <- project.allProjectClassFiles
@@ -154,36 +162,41 @@ object PurityAnalysis extends ProjectAnalysisApplication {
     val analysisTime = endTime - middleTime
     val combinedTime = endTime - startTime
 
-    val pureMethods = methodToCell.filter(_._2.getResult() match {
-      case Pure => true
-      case _ => false
-    }).keys
+    val pureMethods = methodToCell
+      .filter(_._2.getResult() match {
+        case Pure => true
+        case _    => false
+      })
+      .keys
 
     val pureMethodsInfo = pureMethods.map(m => m.toJava).toList.sorted
 
-    BasicReport(s"pure methods analysis:\nPURE=${pureMethods.size}\n\n" + pureMethodsInfo.mkString("\n") +
-      s"\nSETUP TIME: $setupTime" +
-      s"\nANALYIS TIME: $analysisTime" +
-      s"\nCOMBINED TIME: $combinedTime")
+    BasicReport(
+      s"pure methods analysis:\nPURE=${pureMethods.size}\n\n" + pureMethodsInfo.mkString("\n") +
+        s"\nSETUP TIME: $setupTime" +
+        s"\nANALYIS TIME: $analysisTime" +
+        s"\nCOMBINED TIME: $combinedTime"
+    )
   }
 
-  /**
-   * Determines the purity of the given method.
-   */
+  /** Determines the purity of the given method.
+    */
   def analyze(
-    project: Project[URL],
-    methodToCell: Map[Method, Cell[Purity, Null]],
-    classFile: ClassFile,
-    method: Method): Outcome[Purity] = {
+      project: Project[URL],
+      methodToCell: Map[Method, Cell[Purity, Null]],
+      classFile: ClassFile,
+      method: Method
+  ): Outcome[Purity] = {
     import project.nonVirtualCall
 
     val cell = methodToCell(method)
 
     if ( // Due to a lack of knowledge, we classify all native methods or methods that
-    // belong to a library (and hence lack the body) as impure...
-    method.body.isEmpty /*HERE: method.isNative || "isLibraryMethod(method)"*/ ||
+      // belong to a library (and hence lack the body) as impure...
+      method.body.isEmpty /*HERE: method.isNative || "isLibraryMethod(method)"*/ ||
       // for simplicity we are just focusing on methods that do not take objects as parameters
-      method.parameterTypes.exists(!_.isBaseType)) {
+      method.parameterTypes.exists(!_.isBaseType)
+    ) {
       return FinalOutcome(Impure)
     }
 
@@ -215,45 +228,43 @@ object PurityAnalysis extends ProjectAnalysisApplication {
               return FinalOutcome(Impure);
           }
 
-        case INVOKESPECIAL.opcode | INVOKESTATIC.opcode => instruction match {
+        case INVOKESPECIAL.opcode | INVOKESTATIC.opcode =>
+          instruction match {
 
-          case MethodInvocationInstruction(`declaringClassType`, _, `methodName`, `methodDescriptor`) =>
-          // We have a self-recursive call; such calls do not influence
-          // the computation of the method's purity and are ignored.
-          // Let's continue with the evaluation of the next instruction.
+            case MethodInvocationInstruction(
+                  `declaringClassType`,
+                  _,
+                  `methodName`,
+                  `methodDescriptor`
+                ) =>
+            // We have a self-recursive call; such calls do not influence
+            // the computation of the method's purity and are ignored.
+            // Let's continue with the evaluation of the next instruction.
 
-          case mii: NonVirtualMethodInvocationInstruction =>
+            case mii: NonVirtualMethodInvocationInstruction =>
 
-            nonVirtualCall(method.classFile.thisType, mii) match {
+              nonVirtualCall(method.classFile.thisType, mii) match {
 
-              case Success(callee) =>
-                /* Recall that self-recursive calls are handled earlier! */
-                dependencies.add(callee)
+                case Success(callee) =>
+                  /* Recall that self-recursive calls are handled earlier! */
+                  dependencies.add(callee)
 
-              case _ /* Empty or Failure */ =>
+                case _ /* Empty or Failure */ =>
 
-                // We know nothing about the target method (it is not
-                // found in the scope of the current project).
-                return FinalOutcome(Impure)
-            }
+                  // We know nothing about the target method (it is not
+                  // found in the scope of the current project).
+                  return FinalOutcome(Impure)
+              }
 
-        }
+          }
 
-        case NEW.opcode |
-          GETFIELD.opcode |
-          PUTFIELD.opcode | PUTSTATIC.opcode |
-          NEWARRAY.opcode | MULTIANEWARRAY.opcode | ANEWARRAY.opcode |
-          AALOAD.opcode | AASTORE.opcode |
-          BALOAD.opcode | BASTORE.opcode |
-          CALOAD.opcode | CASTORE.opcode |
-          SALOAD.opcode | SASTORE.opcode |
-          IALOAD.opcode | IASTORE.opcode |
-          LALOAD.opcode | LASTORE.opcode |
-          DALOAD.opcode | DASTORE.opcode |
-          FALOAD.opcode | FASTORE.opcode |
-          ARRAYLENGTH.opcode |
-          MONITORENTER.opcode | MONITOREXIT.opcode |
-          INVOKEDYNAMIC.opcode | INVOKEVIRTUAL.opcode | INVOKEINTERFACE.opcode =>
+        case NEW.opcode | GETFIELD.opcode | PUTFIELD.opcode | PUTSTATIC.opcode | NEWARRAY.opcode |
+            MULTIANEWARRAY.opcode | ANEWARRAY.opcode | AALOAD.opcode | AASTORE.opcode |
+            BALOAD.opcode | BASTORE.opcode | CALOAD.opcode | CASTORE.opcode | SALOAD.opcode |
+            SASTORE.opcode | IALOAD.opcode | IASTORE.opcode | LALOAD.opcode | LASTORE.opcode |
+            DALOAD.opcode | DASTORE.opcode | FALOAD.opcode | FASTORE.opcode | ARRAYLENGTH.opcode |
+            MONITORENTER.opcode | MONITOREXIT.opcode | INVOKEDYNAMIC.opcode | INVOKEVIRTUAL.opcode |
+            INVOKEINTERFACE.opcode =>
           return FinalOutcome(Impure)
 
         case _ =>
@@ -275,10 +286,12 @@ object PurityAnalysis extends ProjectAnalysisApplication {
     // If any dependee is Impure, the dependent Cell is impure.
     // Otherwise, we do not know anything new.
     // Exception will be rethrown.
-    if (v.collectFirst({
-      case (_, scala.util.Success(FinalOutcome(Impure))) => true
-      case (_, scala.util.Failure(_)) => true
-    }).isDefined)
+    if (
+      v.collectFirst({
+        case (_, scala.util.Success(FinalOutcome(Impure))) => true
+        case (_, scala.util.Failure(_))                    => true
+      }).isDefined
+    )
       FinalOutcome(Impure)
     else NoOutcome
   }
