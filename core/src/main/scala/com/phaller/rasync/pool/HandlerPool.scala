@@ -106,7 +106,7 @@ class HandlerPool[V, E >: Null](
   @tailrec
   final def onQuiescent(handler: () => Unit): Unit = {
     val state = poolState.get()
-    if (state.isQuiescent) {
+    if (state.isQuiescent()) {
       execute(new Runnable { def run(): Unit = handler() }, 0)
     } else {
       val newState = new PoolState(handler :: state.handlers, state.submittedTasks)
@@ -141,7 +141,7 @@ class HandlerPool[V, E >: Null](
 
   /** Returns all non-completed cells, when quiescence is reached. */
   def quiescentIncompleteCells: Future[Iterable[Cell[_, _]]] = {
-    val p = Promise[Iterable[Cell[_, _]]]
+    val p = Promise[Iterable[Cell[_, _]]]()
     this.onQuiescent { () =>
       deregisterCompletedCells()
       p.success(cellsNotDone.asScala)
@@ -160,7 +160,7 @@ class HandlerPool[V, E >: Null](
     *   boolean parameter indicates if cycles have been resolved or not.
     */
   def quiescentResolveCell: Future[Unit] = {
-    val p = Promise[Unit]
+    val p = Promise[Unit]()
     this.onQuiescent { () =>
       deregisterCompletedCells()
 
