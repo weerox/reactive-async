@@ -1,7 +1,8 @@
 package com.phaller.rasync
 package test
 
-import org.scalatest.FunSuite
+import munit.FunSuite
+
 import com.phaller.rasync.lattice.Lattice
 import com.phaller.rasync.lattice.lattices.PowerSetLattice
 

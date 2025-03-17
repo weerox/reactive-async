@@ -7,7 +7,8 @@ import com.phaller.rasync.cell.{ Cell, FinalOutcome, NextOutcome, NoOutcome }
 import com.phaller.rasync.lattice.{ DefaultKey, Updater }
 import com.phaller.rasync.pool.HandlerPool
 import com.phaller.rasync.test.lattice.{ IntUpdater, StringIntKey }
-import org.scalatest.FunSuite
+
+import munit.FunSuite
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -191,7 +192,7 @@ class LazySuite extends FunSuite {
     latch2.await()
 
     assert(cell3.isComplete)
-    assert(cell3.getResult() === 103)
+    assert(cell3.getResult() == 103)
 
     pool.shutdown()
   }
@@ -249,7 +250,7 @@ class LazySuite extends FunSuite {
     latch3.await()
 
     assert(cell3.isComplete)
-    assert(cell3.getResult() === 333)
+    assert(cell3.getResult() == 333)
 
     pool.shutdown()
   }

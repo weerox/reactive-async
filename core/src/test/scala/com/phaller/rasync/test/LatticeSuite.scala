@@ -3,7 +3,8 @@ package test
 
 import com.phaller.rasync.lattice._
 import com.phaller.rasync.lattice.lattices.NaturalNumberLattice
-import org.scalatest.FunSuite
+
+import munit.FunSuite
 
 class LatticeSuite extends FunSuite {
   test("lteq 1") {

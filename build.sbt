@@ -22,7 +22,7 @@ lazy val core: Project = (project in file("core"))
   .settings(commonSettings: _*)
   .settings(
     name := "reactive-async",
-    libraryDependencies += scalaTest,
+    libraryDependencies += munit,
     libraryDependencies += opalCommon,
     libraryDependencies += opalTAC,
     scalacOptions += "-feature"
@@ -43,7 +43,7 @@ lazy val bench: Project = (project in file("bench"))
   .settings(commonSettings: _*)
   .settings(
     name := "reactive-async-bench",
-    libraryDependencies += scalaTest,
+    libraryDependencies += munit,
     libraryDependencies += opalCommon,
 //    libraryDependencies += opalAI % Test,
     libraryDependencies += scalaMeter,
