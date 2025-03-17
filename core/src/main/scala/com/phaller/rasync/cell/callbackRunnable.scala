@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.AtomicReference
 import pool.HandlerPool
 import scala.annotation.tailrec
 
-import scala.concurrent.OnCompleteRunnable
+import scala.concurrent.Batchable
 import scala.util.{ Failure, Success, Try }
 
 import com.phaller.rasync.util.Counter
@@ -18,7 +18,7 @@ import com.phaller.rasync.util.Counter
   */
 private[rasync] abstract class CallbackRunnable[V, E >: Null]
     extends Runnable
-    with OnCompleteRunnable {
+    with Batchable {
   protected val pool: HandlerPool[V, E]
 
   protected val dependentCompleter: CellCompleter[V, E]
