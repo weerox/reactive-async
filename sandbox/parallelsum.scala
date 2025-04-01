@@ -176,8 +176,5 @@ object ParallelSum {
     val durationSumFut = durationsFut.map(d => d / 1000000).reduce(_ + _)
     val resFut = durationSumFut / 9
     println(s"time (futures): $resFut ms")
-
-    // clean up
-    pool.shutdown()
   }
 }

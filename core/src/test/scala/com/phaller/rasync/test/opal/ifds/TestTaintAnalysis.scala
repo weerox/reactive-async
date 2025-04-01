@@ -66,7 +66,6 @@ class TestTaintAnalysis(
   override def waitForCompletion(duration: Duration = Duration("10h")): Unit = {
     val fut = pool.quiescentResolveCell
     Await.ready(fut, duration)
-    pool.shutdown()
   }
 
   //    Methods below have not been changed when migrating the code to RA

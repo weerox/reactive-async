@@ -91,7 +91,6 @@
 //    val stats = npv.cell(chunkSize, children)
 //    val end = System.nanoTime()
 //    // println(stats)
-//    pool.shutdown()
 //    end - start
 //  }
 //

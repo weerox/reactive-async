@@ -91,7 +91,6 @@
 //      })
 //    }
 //    pool.whileQuiescentResolveDefault
-//    pool.shutdown()
 //
 //    val endTime = System.currentTimeMillis
 //
@@ -192,7 +191,6 @@
 //      })
 //    }
 //    pool.whileQuiescentResolveCell
-//    pool.shutdown()
 //
 //    /* Fixes the results so the output looks good */
 //    val mutableClassFilesInfo = for {

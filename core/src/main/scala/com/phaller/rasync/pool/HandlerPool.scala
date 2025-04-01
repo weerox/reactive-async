@@ -27,19 +27,9 @@ class HandlerPool[V, E >: Null](
     unhandledExceptionHandler: Throwable => Unit = _.printStackTrace(),
     val schedulingStrategy: SchedulingStrategy[V, E] = new DefaultScheduling[V, E]
 ) {
-
-  private val pool: AbstractExecutorService =
-    schedulingStrategy match {
-      case _: DefaultScheduling[_, _] => new ForkJoinPool(parallelism)
-      case _ =>
-        new ThreadPoolExecutor(
-          parallelism,
-          parallelism,
-          Int.MaxValue,
-          TimeUnit.NANOSECONDS,
-          new PriorityBlockingQueue[Runnable]()
-        )
-    }
+  private val virtualThreadFactory = Thread
+    .ofVirtual()
+    .factory()
 
   private val poolState = new AtomicReference[PoolState](new PoolState)
 
@@ -304,7 +294,7 @@ class HandlerPool[V, E >: Null](
 
     // Run the task
     try {
-      pool.execute(new PriorityRunnable(priority) {
+      val thread = virtualThreadFactory.newThread(new PriorityRunnable(priority) {
         def run(): Unit = {
           try {
             task.run()
@@ -316,6 +306,8 @@ class HandlerPool[V, E >: Null](
           }
         }
       })
+
+      thread.start()
     } catch {
       // If pool.execute() failed, we need to count down now.
       // (Normally, decSubmittedTasks is called after task.run())
@@ -351,17 +343,6 @@ class HandlerPool[V, E >: Null](
         priority
       )
   }
-
-  /** Possibly initiates an orderly shutdown in which previously submitted tasks are executed, but
-    * no new tasks are accepted. This method should only be called, when the pool is quiescent.
-    */
-  def shutdown(): Unit =
-    pool.shutdown()
-
-  /** Waits for quiescence, then shuts the pool down.
-    */
-  def onQuiescenceShutdown(): Unit =
-    this.onQuiescent(() => pool.shutdown())
 
   def reportFailure(t: Throwable): Unit =
     t.printStackTrace()

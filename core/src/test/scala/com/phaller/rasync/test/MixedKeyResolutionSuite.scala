@@ -39,7 +39,6 @@ class MixedKeyResolutionSuite extends FunSuite with MixedCompleterFactory {
     assert(completer2.cell.isComplete)
     assert(completer1.cell.getResult() == 5)
     assert(completer2.cell.getResult() == 5)
-    pool.shutdown()
   }
 
   test("DefaultKey.resolve 2") {
@@ -55,7 +54,6 @@ class MixedKeyResolutionSuite extends FunSuite with MixedCompleterFactory {
     assert(completer2.cell.isComplete)
     assert(completer1.cell.getResult() == 5)
     assert(completer2.cell.getResult() == 5)
-    pool.shutdown()
   }
 
   test("when: cSCC with constant resolution 1") {
@@ -122,8 +120,6 @@ class MixedKeyResolutionSuite extends FunSuite with MixedCompleterFactory {
     val fut = pool.quiescentResolveCell
     Await.result(fut, 2.seconds)
     latch.await()
-
-    pool.onQuiescenceShutdown()
   }
 
   test("when: cSCC with constant resolution 2") {
@@ -190,8 +186,6 @@ class MixedKeyResolutionSuite extends FunSuite with MixedCompleterFactory {
     val fut = pool.quiescentResolveCell
     Await.result(fut, 2.seconds)
     latch.await()
-
-    pool.onQuiescenceShutdown()
   }
 
   test("when: cSCC with default resolution 1") {
@@ -247,8 +241,6 @@ class MixedKeyResolutionSuite extends FunSuite with MixedCompleterFactory {
     val fut = pool.quiescentResolveCell
     Await.result(fut, 2.seconds)
     latch.await()
-
-    pool.onQuiescenceShutdown()
   }
 
   test("when: cSCC with default resolution 2") {
@@ -304,8 +296,6 @@ class MixedKeyResolutionSuite extends FunSuite with MixedCompleterFactory {
     val fut = pool.quiescentResolveCell
     Await.result(fut, 2.seconds)
     latch.await()
-
-    pool.onQuiescenceShutdown()
   }
 
   test("when: cycle with default resolution 1") {
@@ -335,8 +325,6 @@ class MixedKeyResolutionSuite extends FunSuite with MixedCompleterFactory {
       assert(cell1.getResult() != ShouldNotHappen)
       assert(cell2.getResult() != ShouldNotHappen)
     }
-
-    pool.onQuiescenceShutdown()
   }
 
   test("when: cycle with default resolution 2") {
@@ -366,8 +354,6 @@ class MixedKeyResolutionSuite extends FunSuite with MixedCompleterFactory {
       assert(cell1.getResult() != ShouldNotHappen)
       assert(cell2.getResult() != ShouldNotHappen)
     }
-
-    pool.onQuiescenceShutdown()
   }
 
   test("when: cycle with constant resolution 1") {
@@ -407,8 +393,6 @@ class MixedKeyResolutionSuite extends FunSuite with MixedCompleterFactory {
       assert(cell1.getResult() == OK)
       assert(cell2.getResult() == OK)
     }
-
-    pool.onQuiescenceShutdown()
   }
 
   test("when: cycle with constant resolution 2") {
@@ -448,8 +432,6 @@ class MixedKeyResolutionSuite extends FunSuite with MixedCompleterFactory {
       assert(cell1.getResult() == OK)
       assert(cell2.getResult() == OK)
     }
-
-    pool.onQuiescenceShutdown()
   }
 
   test("whenNext: cycle with additional outgoing dep 1") {
@@ -495,8 +477,6 @@ class MixedKeyResolutionSuite extends FunSuite with MixedCompleterFactory {
     // resolve the independent cell `out` and the cycle
     val fut = pool.quiescentResolveCell
     Await.ready(fut, 1.minutes)
-
-    pool.onQuiescenceShutdown()
 
     assert(cell1.getResult() != ShouldNotHappen)
     assert(cell2.getResult() != ShouldNotHappen)
@@ -547,8 +527,6 @@ class MixedKeyResolutionSuite extends FunSuite with MixedCompleterFactory {
     val fut = pool.quiescentResolveCell
     Await.ready(fut, 1.minutes)
 
-    pool.onQuiescenceShutdown()
-
     assert(cell1.getResult() != ShouldNotHappen)
     assert(cell2.getResult() != ShouldNotHappen)
     assert(out.cell.getResult() == Fallback)
@@ -595,8 +573,6 @@ class MixedKeyResolutionSuite extends FunSuite with MixedCompleterFactory {
     val fut = pool.quiescentResolveCell
     Await.ready(fut, 1.minutes)
 
-    pool.onQuiescenceShutdown()
-
     assert(cell1.getResult() != ShouldNotHappen)
     assert(cell2.getResult() != ShouldNotHappen)
     assert(in.cell.getResult() == OK)
@@ -642,8 +618,6 @@ class MixedKeyResolutionSuite extends FunSuite with MixedCompleterFactory {
 
     val fut = pool.quiescentResolveCell
     Await.ready(fut, 1.minutes)
-
-    pool.onQuiescenceShutdown()
 
     assert(cell1.getResult() != ShouldNotHappen)
     assert(cell2.getResult() != ShouldNotHappen)

@@ -31,8 +31,6 @@ class LazySuite extends FunSuite {
 
     assert(cell.isComplete)
     assert(cell.getResult() == 1)
-
-    pool.shutdown()
   }
 
   test("trigger dependees") {
@@ -68,8 +66,6 @@ class LazySuite extends FunSuite {
 
     assert(cell2.isComplete)
     assert(cell2.getResult() == 3)
-
-    pool.shutdown()
   }
 
   test("do not trigger unneeded cells") {
@@ -96,8 +92,6 @@ class LazySuite extends FunSuite {
 
     assert(!cell1.isComplete)
     assert(cell1.getResult() == 0)
-
-    pool.shutdown()
   }
 
   test("cycle deps") {
@@ -144,8 +138,6 @@ class LazySuite extends FunSuite {
 
     assert(cell2.isComplete)
     assert(cell2.getResult() == 2)
-
-    pool.shutdown()
   }
 
   test("cycle deps with incoming dep") {
@@ -192,8 +184,6 @@ class LazySuite extends FunSuite {
 
     assert(cell3.isComplete)
     assert(cell3.getResult() === 103)
-
-    pool.shutdown()
   }
 
   test("cycle deps with incoming dep, resolve cycle first") {
@@ -250,8 +240,6 @@ class LazySuite extends FunSuite {
 
     assert(cell3.isComplete)
     assert(cell3.getResult() === 333)
-
-    pool.shutdown()
   }
 
   test("cycle does not get resolved, if not triggered") {
@@ -274,8 +262,6 @@ class LazySuite extends FunSuite {
     assert(!c1.isComplete)
     assert(c2.getResult() == 0)
     assert(!c2.isComplete)
-
-    pool.shutdown()
   }
   //
   test("cell does not get resolved, if not triggered") {
@@ -287,8 +273,6 @@ class LazySuite extends FunSuite {
 
     assert(c.getResult() == 0)
     assert(!c.isComplete)
-
-    pool.shutdown()
   }
   //
   test("cell gets resolved, if triggered") {
@@ -303,7 +287,5 @@ class LazySuite extends FunSuite {
 
     assert(cell.isComplete) // cell should be completed with a fallback value
     assert(cell.getResult() == 1) // StringIntKey sets cell to fallback value `1`.
-
-    pool.shutdown()
   }
 }

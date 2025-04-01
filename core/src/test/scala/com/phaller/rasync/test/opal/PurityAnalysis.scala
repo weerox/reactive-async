@@ -154,7 +154,6 @@ object PurityAnalysis extends ProjectAnalysisApplication {
     }
     val fut = pool.quiescentResolveCell
     Await.ready(fut, 30.minutes)
-    pool.shutdown()
 
     val endTime = System.currentTimeMillis
 

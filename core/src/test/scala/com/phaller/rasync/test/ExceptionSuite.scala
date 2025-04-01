@@ -53,8 +53,6 @@ class ExceptionSuite extends FunSuite {
       case Success(_) => assert(false)
       case Failure(e) => assert(e.getMessage == "foo")
     }
-
-    pool.shutdown()
   }
 
   test("exception in concurrent callback") {
@@ -87,8 +85,6 @@ class ExceptionSuite extends FunSuite {
       case Success(_) => assert(false)
       case Failure(e) => assert(e.getMessage == "foo")
     }
-
-    pool.shutdown()
   }
 
   test("exception in sequential callback") {
@@ -121,8 +117,6 @@ class ExceptionSuite extends FunSuite {
       case Success(_) => assert(false)
       case Failure(e) => assert(e.getMessage == "foo")
     }
-
-    pool.shutdown()
   }
 
   test("exception in Key.resolve") {
@@ -156,8 +150,6 @@ class ExceptionSuite extends FunSuite {
 
     // wait for the cycle to be resolved by ExceptionKey.resolve
     Await.ready(pool.quiescentResolveCell, 2.seconds)
-
-    pool.onQuiescenceShutdown()
 
     // check for exceptions in all cells of the cycle
     for (c <- List(c0, c1, c2, c3, c4))
@@ -205,8 +197,6 @@ class ExceptionSuite extends FunSuite {
     // c1 should have ignored this failure and contain 10
     assert(c1.cell.isComplete)
     assert(c1.cell.getResult() == 10)
-
-    pool.shutdown()
   }
 
   test("exception after freeze") {
@@ -235,8 +225,6 @@ class ExceptionSuite extends FunSuite {
       // so the exception should not matter
       assert(c2.cell.isComplete)
       assert(c2.cell.getResult() == 10)
-
-      pool.shutdown()
     })
   }
 
@@ -267,8 +255,6 @@ class ExceptionSuite extends FunSuite {
         case Success(_) => assert(false)
         case Failure(e) => assert(e.getMessage == "foo")
       }
-
-      pool.shutdown()
     })
 
   }
@@ -310,8 +296,6 @@ class ExceptionSuite extends FunSuite {
     assert(cell.isComplete)
     // check, if cell has been completed with an exception
     assert(cell.getResult() == 10)
-
-    pool.shutdown()
   }
 
 }

@@ -48,8 +48,6 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
     completer.putFinal(5)
 
     latch.await()
-
-    pool.onQuiescenceShutdown()
   }
 
   test("putFinal: 2 putFinals with same value to the same cell") {
@@ -65,8 +63,6 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
     } catch {
       case e: Exception => assert(false)
     }
-
-    pool.onQuiescenceShutdown()
   }
 
   test("putFinal: putFinal on complete cell without adding new information") {
@@ -83,8 +79,6 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
       case ise: IllegalStateException => assert(false)
       case e: Exception               => assert(false)
     }
-
-    pool.onQuiescenceShutdown()
   }
 
   test("when") {
@@ -109,8 +103,6 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
     completer2.putFinal(10)
 
     latch.await()
-
-    pool.onQuiescenceShutdown()
   }
 
   test("when: dependency count after putFinal") {
@@ -137,8 +129,6 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
     latch.await()
 
     assert(cell1.numDependencies == 0)
-
-    pool.onQuiescenceShutdown()
   }
 
   test("when: dependency count 2") {
@@ -154,8 +144,6 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
     cell1.waitUntilNoDeps(2, TimeUnit.SECONDS)
 
     assert(cell1.numDependencies == 0)
-
-    pool.onQuiescenceShutdown()
   }
 
   test("when: dependency count for multiple deps") {
@@ -172,8 +160,6 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
     cell1.when(completer2.cell, completer3.cell)(ifXthenFinalY(20, 30)) // cell2 should be ignored
 
     assert(cell1.numDependencies == 2)
-
-    pool.shutdown()
   }
 
   test("when: dependency count for multiple deps 2") {
@@ -194,8 +180,6 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
     cell1.when(completer4.cell)(ifXthenFinalY(20, 30)) // should be ignored
 
     assert(cell1.numDependencies == 3)
-
-    pool.shutdown()
   }
 
   test("when: callback removal") {
@@ -218,8 +202,6 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
 
     assert(completer1.cell.getResult() == 20)
     assert(completer2.cell.getResult() == 10)
-
-    pool.onQuiescenceShutdown()
   }
 
   test("onNext") {
@@ -242,8 +224,6 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
     completer.putNext(9)
 
     latch.await()
-
-    pool.onQuiescenceShutdown()
   }
 
   test("when: num dependencies after non-final value") {
@@ -273,8 +253,6 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
 
     assert(cell1.numDependencies == 0)
     assert(completer2.cell.numDependentCells == 0)
-
-    pool.onQuiescenceShutdown()
   }
 
   test("whenNext: Triggered by putFinal") {
@@ -299,8 +277,6 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
 
     completer2.putFinal(10)
     latch.await()
-
-    pool.onQuiescenceShutdown()
   }
 
   test("when: Remove dependencies from cells that depend on a completing cell") {
@@ -317,8 +293,6 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
     cell1.waitUntilNoDeps()
 
     assert(cell1.numDependencies == 0)
-
-    pool.onQuiescenceShutdown()
   }
 
   test("when: callback removal 2") {
@@ -337,8 +311,6 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
 
     assert(completer1.cell.getResult() == Immutable)
     assert(completer2.cell.getResult() == Mutable)
-
-    pool.onQuiescenceShutdown()
   }
 
   test("when: Dependencies concurrency test") {
@@ -359,8 +331,6 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
     latch.await()
 
     assert(completer1.cell.numDependencies == 2 * n)
-
-    pool.onQuiescenceShutdown()
   }
 
   test("when: concurrent put final") {
@@ -387,8 +357,6 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
 
       if (expectedValue.isEmpty) expectedValue = Some(cell1.getResult())
       else assert(cell1.getResult() == expectedValue.get)
-
-      pool.onQuiescenceShutdown()
     }
   }
 
@@ -416,8 +384,6 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
       assert(completer2.cell.getResult() == Mutable)
       assert(completer1.cell.getResult() == Mutable)
     }
-
-    pool.onQuiescenceShutdown()
   }
 
   test("when: concurrent put next") {
@@ -443,8 +409,6 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
 
       if (expectedValue.isEmpty) expectedValue = Some(cell1.getResult())
       else assert(cell1.getResult() == expectedValue.get)
-
-      pool.shutdown()
     }
   }
 
@@ -480,8 +444,6 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
       case _: IllegalStateException => assert(false)
       case _: Exception             => assert(false)
     }
-
-    pool.onQuiescenceShutdown()
   }
 
   test("when: complete depedent cell, dependency 1") {
@@ -507,8 +469,6 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
     completer2.putNext(10)
 
     latch.await()
-
-    pool.onQuiescenceShutdown()
   }
 
   test("when: complete dependent cell, dependency 2") {
@@ -545,8 +505,6 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
 
     completer2.putNext(10)
     latch2.await()
-
-    pool.onQuiescenceShutdown()
   }
 
   test("when: values passed to callback") {
@@ -595,8 +553,6 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
     latch2.await()
 
     assert(cell1.isComplete)
-
-    pool.onQuiescenceShutdown()
   }
 
   test("put: isFinal == true") {
@@ -615,7 +571,6 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
     completer.put(6, true)
 
     latch.await()
-    pool.onQuiescenceShutdown()
   }
 
   test("put: isFinal == false") {
@@ -634,7 +589,6 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
     completer.put(10, false)
 
     latch.await()
-    pool.onQuiescenceShutdown()
   }
 
   test("putFinal: result passed to callbacks") {
@@ -661,7 +615,6 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
     completer.putFinal(Set(4))
 
     latch.await()
-    pool.onQuiescenceShutdown()
   }
 
   test("putNext: result passed to callbacks") {
@@ -688,7 +641,6 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
     completer.putNext(Set(4))
 
     latch.await()
-    pool.onQuiescenceShutdown()
   }
 
   test("quiescent incomplete cells") {
@@ -776,8 +728,6 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
     // Even though cell is completed, this should be allowed because it wont add any new information
     completer.putNext(Immutable)
     assert(cell.getResult() == ConditionallyImmutable)
-
-    pool.onQuiescenceShutdown()
   }
 
   test("putNext: concurrency test") {
@@ -801,8 +751,6 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
 
       assert(completer.cell.getResult() == Mutable)
     }
-
-    pool.onQuiescenceShutdown()
   }
 
   test("when: different depender") {
@@ -827,8 +775,6 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
     completer1.putFinal(10)
 
     latch1.await()
-
-    pool.onQuiescenceShutdown()
 
     assert(completer1.cell.getResult() == 10)
     assert(completer2.cell.getResult() == 10)
@@ -856,8 +802,6 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
 
       assert(completer.cell.getResult() == Mutable)
     }
-
-    pool.onQuiescenceShutdown()
   }
 
   test("if exception-throwing tasks should still run quiescent handlers") {
@@ -881,8 +825,6 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
     } catch {
       case _: java.util.concurrent.TimeoutException => assert(false)
     }
-
-    pool.onQuiescenceShutdown()
   }
 
   test("when: called at most once with FinalOutcome") {
@@ -933,8 +875,6 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
 
       assert(called === 1)
     }
-
-    pool.onQuiescenceShutdown()
   }
 
   test("when: discard callbacks on completion") {
@@ -960,7 +900,6 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
     latch1.countDown()
 
     pool.onQuiescent(() => {
-      pool.onQuiescenceShutdown()
       latch2.countDown()
     })
     // pool needs to reach quiescence, even if cell1 is completed early:
@@ -1054,8 +993,6 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
 
     assert(completer1.cell.getResult == 42)
     assert(completer2.cell.getResult == 84)
-
-    pool.onQuiescenceShutdown()
   }
 
   test("recursive quiescentResolveCell using fallback") {
@@ -1075,8 +1012,6 @@ abstract class BaseSuite extends FunSuite with CompleterFactory {
 
     assert(completer1.cell.getResult == 86)
     assert(completer2.cell.getResult == 43)
-
-    pool.onQuiescenceShutdown()
   }
 
   class RecursiveQuiescentTestKey extends Key[Int, Null] {
