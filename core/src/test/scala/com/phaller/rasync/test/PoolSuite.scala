@@ -31,8 +31,6 @@ class PoolSuite extends FunSuite {
       }
       i += 1
     }
-
-    pool.shutdown()
   }
 
   test("register cells concurrently") {
@@ -83,8 +81,6 @@ class PoolSuite extends FunSuite {
 
     latch2.await()
     assert(true)
-
-    pool.onQuiescenceShutdown()
   }
 
 }

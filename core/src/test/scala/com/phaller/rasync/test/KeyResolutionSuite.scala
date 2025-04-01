@@ -38,7 +38,6 @@ abstract class KeyResolutionSuite extends FunSuite with CompleterFactory {
     assert(completer2.cell.isComplete)
     assert(completer1.cell.getResult() == 5)
     assert(completer2.cell.getResult() == 5)
-    pool.shutdown()
   }
 
   test("DefaultKey.fallback") {
@@ -50,7 +49,6 @@ abstract class KeyResolutionSuite extends FunSuite with CompleterFactory {
     Await.ready(pool.quiescentResolveCell, 2.seconds)
     assert(completer1.cell.isComplete)
     assert(completer1.cell.getResult() == 5)
-    pool.shutdown()
   }
 
   test("DefaultKey.fallback with additional depender") {
@@ -66,7 +64,6 @@ abstract class KeyResolutionSuite extends FunSuite with CompleterFactory {
     assert(completer1.cell.getResult() == 5)
     assert(completer2.cell.isComplete)
     assert(completer2.cell.getResult() == 10)
-    pool.shutdown()
   }
 
   test("when: cSCC with constant resolution") {
@@ -133,8 +130,6 @@ abstract class KeyResolutionSuite extends FunSuite with CompleterFactory {
     val fut = pool.quiescentResolveCell
     Await.result(fut, 2.seconds)
     latch.await()
-
-    pool.onQuiescenceShutdown()
   }
 
   test("when: cSCC with default resolution") {
@@ -190,8 +185,6 @@ abstract class KeyResolutionSuite extends FunSuite with CompleterFactory {
     val fut = pool.quiescentResolveCell
     Await.result(fut, 2.seconds)
     latch.await()
-
-    pool.onQuiescenceShutdown()
   }
 
   test("when: cycle with default resolution") {
@@ -221,8 +214,6 @@ abstract class KeyResolutionSuite extends FunSuite with CompleterFactory {
       assert(cell1.getResult() != ShouldNotHappen)
       assert(cell2.getResult() != ShouldNotHappen)
     }
-
-    pool.onQuiescenceShutdown()
   }
 
   test("when: cycle with constant resolution") {
@@ -262,8 +253,6 @@ abstract class KeyResolutionSuite extends FunSuite with CompleterFactory {
       assert(cell1.getResult() == OK)
       assert(cell2.getResult() == OK)
     }
-
-    pool.onQuiescenceShutdown()
   }
 
   test("whenNext: cycle with additional outgoing dep") {
@@ -310,8 +299,6 @@ abstract class KeyResolutionSuite extends FunSuite with CompleterFactory {
     val fut = pool.quiescentResolveCell
     Await.ready(fut, 1.minutes)
 
-    pool.onQuiescenceShutdown()
-
     assert(cell1.getResult() != ShouldNotHappen)
     assert(cell2.getResult() != ShouldNotHappen)
     assert(out.cell.getResult() == Fallback)
@@ -357,8 +344,6 @@ abstract class KeyResolutionSuite extends FunSuite with CompleterFactory {
 
     val fut = pool.quiescentResolveCell
     Await.ready(fut, 1.minutes)
-
-    pool.onQuiescenceShutdown()
 
     assert(cell1.getResult() != ShouldNotHappen)
     assert(cell2.getResult() != ShouldNotHappen)

@@ -53,8 +53,6 @@ class SequentialSuite extends FunSuite with SequentialCompleterFactory {
     assert(latch.await(10, TimeUnit.SECONDS))
 
     assert(cell1.getResult() == n * n)
-
-    pool.onQuiescenceShutdown()
   }
 
   test("when: state") {
@@ -106,8 +104,6 @@ class SequentialSuite extends FunSuite with SequentialCompleterFactory {
     latch.await()
 
     assert(cell1.getResult().size == n)
-
-    pool.onQuiescenceShutdown()
   }
 
 }
